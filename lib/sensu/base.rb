@@ -33,6 +33,9 @@ module Sensu
       if @options[:log_file]
         logger.reopen(@options[:log_file])
       end
+      if @options[:log_format_version]
+        logger.log_format_version = @options[:log_format_version]
+      end
       logger.setup_traps
       logger
     end

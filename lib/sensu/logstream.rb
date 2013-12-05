@@ -3,6 +3,7 @@ module Sensu
     def initialize
       @log_stream = EM::Queue.new
       @log_level = :info
+      @log_format_version = 0
       STDOUT.sync = true
       STDERR.reopen(STDOUT)
       setup_writer
@@ -31,6 +32,10 @@ module Sensu
       define_method(level) do |*arguments|
         add(level, *arguments)
       end
+    end
+
+    def log_format_version=(version)
+      @log_format_version = version
     end
 
     def reopen(file)
@@ -65,11 +70,21 @@ module Sensu
 
     def create_log_event(level, message, data=nil)
       log_event = Hash.new
-      log_event[:timestamp] = Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%z")
-      log_event[:level] = level
+      if @log_format_version == 1
+        log_event["@timestamp"] = Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%z")
+        log_event["@version"] = @log_format_version
+        log_event[:sensu] = {:level => level}
+      else
+        log_event[:timestamp] = Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%z")
+        log_event[:level] = level
+      end
       log_event[:message] = message
       if data.is_a?(Hash)
-        log_event.merge!(data)
+        if @log_format_version == 1
+          log_event.merge!(:sensu => data)
+        else
+          log_event.merge!(data)
+        end
       end
       Oj.dump(log_event)
     end

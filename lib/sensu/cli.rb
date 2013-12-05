@@ -33,6 +33,9 @@ module Sensu
           end
           options[:log_level] = log_level
         end
+        opts.on('--log_format_version VERSION', 'log format version. Default: 0') do |version|
+          options[:log_format_version] = version.to_i
+        end
         opts.on('-v', '--verbose', 'Enable verbose logging') do
           options[:log_level] = :debug
         end
