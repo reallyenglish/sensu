@@ -73,7 +73,7 @@ module Sensu
       if @log_format_version == 1
         log_event["@timestamp"] = Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%z")
         log_event["@version"] = @log_format_version
-        log_event[:sensu] = {:level => level}
+        log_event[:sensu] = {:level => level, :application_name => File.basename($0)}
       else
         log_event[:timestamp] = Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%z")
         log_event[:level] = level
